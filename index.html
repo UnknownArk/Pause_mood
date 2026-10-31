@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pause</title>
+  <style>
+    /* Gentle, warm, and soothing color palette */
+    :root {
+      --bg: #f8f7f4;
+      --card-bg: #ffffff;
+      --text-main: #2d3134;
+      --text-muted: #5f676c;
+      --border-color: #e5e5e0;
+      --focus-ring: #4a6b82;
+      --radius: 12px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background-color: var(--bg);
+      color: var(--text-main);
+      line-height: 1.5;
+      padding: 24px 16px 48px;
+    }
+
+    .container {
+      max-width: 540px;
+      margin: 0 auto;
+    }
+
+    /* Header styling */
+    header {
+      text-align: center;
+      margin-bottom: 28px;
+    }
+
+    h1 {
+      font-size: 1.85rem;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      color: var(--text-main);
+      margin-bottom: 6px;
+    }
+
+    .tagline {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+    }
+
+    /* Card styling */
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius);
+      padding: 20px;
+      margin-bottom: 24px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
+    }
+
+    .section-title {
+      font-size: 1rem;
+      font-weight: 600;
+      margin-bottom: 14px;
+    }
+
+    /* Mood selector buttons */
+    .mood-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 8px;
+      margin-bottom: 20px;
+    }
+
+    .mood-btn {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 12px 6px;
+      background: #fafafa;
+      border: 2px solid var(--border-color);
+      border-radius: 10px;
+      cursor: pointer;
+      font-family: inherit;
+      transition: all 0.15s ease-in-out;
+    }
+
+    .mood-btn:hover {
+      background: #f1f1ed;
+    }
+
+    .mood-btn:focus-visible {
+      outline: 2px solid var(--focus-ring);
+      outline-offset: 2px;
+    }
+
+    .mood-btn.selected {
+      border-color: currentColor;
+      background: #ffffff;
+      transform: translateY(-2px);
+      box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
+    }
+
+    .mood-emoji {
+      font-size: 1.6rem;
+      line-height: 1;
+      margin-bottom: 6px;
+    }
+
+    .mood-label {
+      font-size: 0.75rem;
+      font-weight: 500;
+      color: var(--text-main);
+      text-align: center;
+    }
+
+    .mood-indicator {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      margin-top: 6px;
+    }
+
+    /* Optional note box */
+    .note-group {
+      margin-bottom: 16px;
+    }
+
+    label {
+      display: block;
+      font-size: 0.9rem;
+      font-weight: 500;
+      margin-bottom: 6px;
+      color: var(--text-main);
+    }
+
+    textarea {
+      width: 100%;
+      height: 84px;
+      padding: 10px 12px;
+      font-family: inherit;
+      font-size: 0.95rem;
+      color: var(--text-main);
+      background: #ffffff;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      resize: vertical;
+    }
+
+    textarea:focus-visible {
+      outline: 2px solid var(--focus-ring);
+      border-color: transparent;
+    }
+
+    .char-counter {
+      text-align: right;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    /* Save button */
+    .save-btn {
+      width: 100%;
+      padding: 12px;
+      font-size: 1rem;
+      font-weight: 500;
+      font-family: inherit;
+      color: #ffffff;
+      background: #374151;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.15s ease-in-out;
+    }
+
+    .save-btn:hover {
+      background: #1f2937;
+    }
+
+    .save-btn:focus-visible {
+      outline: 2px solid var(--focus-ring);
+      outline-offset: 2px;
+    }
+
+    /* Feedback & message boxes */
+    .reply-box {
+      margin-top: 18px;
+      padding: 14px 16px;
+      background: #edf4f7;
+      border-left: 4px solid #4a7c98;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      color: #1e3b4d;
+    }
+
+    .calm-box {
+      margin-top: 14px;
+      padding: 14px 16px;
+      background: #fdf5f5;
+      border-left: 4px solid #cc6666;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      color: #662222;
+      line-height: 1.5;
+    }
+
+    /* History list */
+    .history-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 14px;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 24px;
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      font-style: italic;
+    }
+
+    .history-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .history-card {
+      background: #ffffff;
+      border: 1px solid var(--border-color);
+      border-left-width: 5px;
+      border-radius: 8px;
+      padding: 12px 16px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+    }
+
+    .history-card-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 6px;
+    }
+
+    .history-mood-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+
+    .history-time {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    .history-note {
+      font-size: 0.9rem;
+      color: var(--text-main);
+      white-space: pre-wrap;
+      word-break: break-word;
+      margin-top: 4px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <header>
+      <h1>Pause</h1>
+      <p class="tagline">A one-minute daily mood check-in</p>
+    </header>
+
+    <main>
+      <!-- Check-in form card -->
+      <section class="card" aria-label="Daily Check-in">
+        <h2 class="section-title">How are you feeling right now?</h2>
+
+        <!-- Mood selector buttons container -->
+        <div id="mood-selector" class="mood-grid" role="group" aria-label="Select mood"></div>
+
+        <!-- Optional note -->
+        <div class="note-group">
+          <label for="note-input">Note (optional):</label>
+          <textarea id="note-input" maxlength="200" placeholder="A thought or a few words..."></textarea>
+          <div id="char-counter" class="char-counter">0/200</div>
+        </div>
+
+        <!-- Save button -->
+        <button id="save-btn" class="save-btn" type="button">Save</button>
+
+        <!-- Warm reply box -->
+        <div id="reply-box" class="reply-box" role="status" hidden></div>
+
+        <!-- Calm support message box -->
+        <div id="calm-box" class="calm-box" role="alert" hidden></div>
+      </section>
+
+      <!-- History list card -->
+      <section class="card" aria-label="Past Check-ins">
+        <div class="history-header">
+          <h2 class="section-title" style="margin-bottom: 0;">Past check-ins</h2>
+        </div>
+        <div id="history-container"></div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    // --- 1. Mood options (easy to change) ---
+    // Each mood has a level, emoji, plain short label, and color.
+    const MOODS = [
+      { level: 1, emoji: "🌧️", label: "Very Low", color: "#6b7280" },
+      { level: 2, emoji: "⛅", label: "Low",      color: "#c26d2e" },
+      { level: 3, emoji: "☁️", label: "Okay",     color: "#3b82a6" },
+      { level: 4, emoji: "🌤️", label: "Good",     color: "#2e8b57" },
+      { level: 5, emoji: "☀️", label: "Great",    color: "#b8860b" }
+    ];
+
+    // --- 2. Warm replies depending on mood ---
+    const REPLIES = {
+      1: "That sounds really heavy. You showed up anyway, and that counts. Be gentle with yourself today.",
+      2: "Sounds like a tough day. It's okay to not be okay. One small thing at a time.",
+      3: "A middle-of-the-road day. Those are real too. Thanks for checking in.",
+      4: "Glad today has some good in it. Hold on to that for a moment.",
+      5: "That's lovely to hear. Enjoy it."
+    };
+
+    // --- 3. Danger phrases for crisis support detection ---
+    const DANGER_PHRASES = [
+      "suicide",
+      "kill myself",
+      "want to die",
+      "end my life",
+      "no point living",
+      "hurt myself",
+      "self harm",
+      "can't go on"
+    ];
+
+    // Exact calm message for people going through a crisis
+    const CALM_MESSAGE = "It sounds like things are really hard right now. You don't have to carry this alone. Please talk to someone you trust, or call Tele-MANAS: 14416 (free, 24/7). If you're in immediate danger, call 112.";
+
+    // Key used for saving data in localStorage
+    const STORAGE_KEY = "pause_mood_checkins";
+
+    // Track which mood is currently picked
+    let selectedMood = null;
+
+    // DOM element references
+    const moodSelector = document.getElementById("mood-selector");
+    const noteInput = document.getElementById("note-input");
+    const charCounter = document.getElementById("char-counter");
+    const saveBtn = document.getElementById("save-btn");
+    const replyBox = document.getElementById("reply-box");
+    const calmBox = document.getElementById("calm-box");
+    const historyContainer = document.getElementById("history-container");
+
+    // --- 4. Render mood buttons dynamically from the MOODS array ---
+    function renderMoodButtons() {
+      moodSelector.innerHTML = "";
+      MOODS.forEach(mood => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "mood-btn";
+        btn.style.color = mood.color;
+        btn.setAttribute("aria-label", `${mood.label} mood`);
+        btn.setAttribute("aria-pressed", "false");
+
+        // Emoji display
+        const emojiSpan = document.createElement("span");
+        emojiSpan.className = "mood-emoji";
+        emojiSpan.textContent = mood.emoji;
+
+        // Text label
+        const labelSpan = document.createElement("span");
+        labelSpan.className = "mood-label";
+        labelSpan.textContent = mood.label;
+
+        // Color indicator dot
+        const dotSpan = document.createElement("span");
+        dotSpan.className = "mood-indicator";
+        dotSpan.style.backgroundColor = mood.color;
+
+        btn.appendChild(emojiSpan);
+        btn.appendChild(labelSpan);
+        btn.appendChild(dotSpan);
+
+        // Click handler: only one mood selected at a time
+        btn.addEventListener("click", () => {
+          selectedMood = mood.level;
+          updateMoodSelectionUI();
+        });
+
+        moodSelector.appendChild(btn);
+      });
+    }
+
+    // Update active highlight on mood buttons
+    function updateMoodSelectionUI() {
+      const buttons = moodSelector.querySelectorAll(".mood-btn");
+      buttons.forEach((btn, index) => {
+        const isSelected = MOODS[index].level === selectedMood;
+        btn.classList.toggle("selected", isSelected);
+        btn.setAttribute("aria-pressed", isSelected ? "true" : "false");
+      });
+    }
+
+    // --- 5. Live character counter for note (up to 200 chars) ---
+    noteInput.addEventListener("input", () => {
+      charCounter.textContent = `${noteInput.value.length}/200`;
+    });
+
+    // --- 6. Helper: Check if crisis message should be shown ---
+    function needsCalmMessage(mood, note) {
+      // Show if lowest mood is picked
+      if (mood === 1) {
+        return true;
+      }
+      // Lowercase note and swap curly apostrophes for normal ones
+      const cleanedNote = note.toLowerCase().replace(/[‘’]/g, "'");
+
+      // Check if note includes any phrase from DANGER_PHRASES
+      return DANGER_PHRASES.some(phrase => cleanedNote.includes(phrase));
+    }
+
+    // --- 7. Load check-ins safely from localStorage with try/catch ---
+    function loadCheckIns() {
+      try {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if (!saved) return [];
+        const parsed = JSON.parse(saved);
+        return Array.isArray(parsed) ? parsed : [];
+      } catch (error) {
+        console.error("Could not read from localStorage:", error);
+        return [];
+      }
+    }
+
+    // --- 8. Save check-ins safely to localStorage ---
+    function saveCheckIns(items) {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
+      } catch (error) {
+        console.error("Could not write to localStorage:", error);
+      }
+    }
+
+    // --- 9. Format timestamp gently (e.g. "Oct 31, 2026, 4:45 PM") ---
+    function formatTime(timestamp) {
+      try {
+        const date = new Date(timestamp);
+        return date.toLocaleString(undefined, {
+          month: "short",
+          day: "numeric",
+          year: "numeric",
+          hour: "numeric",
+          minute: "2-digit"
+        });
+      } catch (e) {
+        return "";
+      }
+    }
+
+    // --- 10. Render history list (newest first, using textContent) ---
+    function renderHistory() {
+      const items = loadCheckIns();
+      historyContainer.innerHTML = "";
+
+      // If there are no check-ins yet
+      if (items.length === 0) {
+        const empty = document.createElement("p");
+        empty.className = "empty-state";
+        empty.textContent = "No check-ins yet.";
+        historyContainer.appendChild(empty);
+        return;
+      }
+
+      // Container for cards
+      const list = document.createElement("div");
+      list.className = "history-list";
+
+      items.forEach(item => {
+        // Find matching mood details for color and emoji
+        const moodData = MOODS.find(m => m.level === item.mood) || MOODS[2];
+
+        // Create card colored by its mood
+        const card = document.createElement("article");
+        card.className = "history-card";
+        card.style.borderLeftColor = moodData.color;
+
+        // Card header row: emoji + label and formatted date/time
+        const topRow = document.createElement("div");
+        topRow.className = "history-card-top";
+
+        const badge = document.createElement("span");
+        badge.className = "history-mood-badge";
+        badge.style.color = moodData.color;
+        badge.textContent = `${moodData.emoji} ${moodData.label}`;
+
+        const time = document.createElement("time");
+        time.className = "history-time";
+        time.textContent = formatTime(item.timestamp);
+
+        topRow.appendChild(badge);
+        topRow.appendChild(time);
+        card.appendChild(topRow);
+
+        // Optional user note (strictly textContent, never innerHTML)
+        if (item.note && item.note.trim().length > 0) {
+          const notePara = document.createElement("p");
+          notePara.className = "history-note";
+          notePara.textContent = item.note;
+          card.appendChild(notePara);
+        }
+
+        list.appendChild(card);
+      });
+
+      historyContainer.appendChild(list);
+    }
+
+    // --- 11. Handle Save button click ---
+    saveBtn.addEventListener("click", () => {
+      // Validate that a mood has been picked
+      if (!selectedMood) {
+        replyBox.textContent = "Please select how you're feeling first.";
+        replyBox.hidden = false;
+        return;
+      }
+
+      const noteText = noteInput.value.trim();
+
+      // Create new check-in object: {id, mood, note, timestamp}
+      const newEntry = {
+        id: Date.now().toString(),
+        mood: selectedMood,
+        note: noteText,
+        timestamp: new Date().toISOString()
+      };
+
+      // Add to history (newest first) and save
+      const allEntries = loadCheckIns();
+      allEntries.unshift(newEntry);
+      saveCheckIns(allEntries);
+
+      // Show warm reply based on the chosen mood
+      replyBox.textContent = REPLIES[selectedMood];
+      replyBox.hidden = false;
+
+      // Check if crisis support message should be displayed
+      if (needsCalmMessage(selectedMood, noteText)) {
+        calmBox.textContent = CALM_MESSAGE;
+        calmBox.hidden = false;
+      } else {
+        calmBox.hidden = true;
+      }
+
+      // Reset form fields
+      noteInput.value = "";
+      charCounter.textContent = "0/200";
+      selectedMood = null;
+      updateMoodSelectionUI();
+
+      // Refresh history list
+      renderHistory();
+    });
+
+    // Initial setup on page load
+    renderMoodButtons();
+    renderHistory();
+  </script>
+</body>
+</html>
